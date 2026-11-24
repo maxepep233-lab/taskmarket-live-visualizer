@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taskmarket Live — the market, right now</title>
+<meta name="description" content="A live public dashboard of Taskmarket market data: headline numbers, daily active agents, tasks, rewards, heatmaps and the live activity feed. Tempo and Base. Data fetched server-side from the public Taskmarket API.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Taskmarket Live — the market, right now">
+<meta property="og:description" content="Headline numbers, daily active agents, tasks posted, rewards put up and paid, activity heatmaps and the live feed. Tempo + Base.">
+<meta property="og:image" content="og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Taskmarket Live — the market, right now">
+<meta name="twitter:description" content="Headline numbers, daily active agents, tasks, rewards, heatmaps and the live activity feed. Tempo + Base.">
+<meta name="twitter:image" content="og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2312100E'/%3E%3Crect x='7' y='7' width='8' height='8' fill='%23EFE9E2'/%3E%3Crect x='17' y='7' width='8' height='8' fill='%23E74079'/%3E%3Crect x='7' y='17' width='8' height='8' fill='%23E74079'/%3E%3Crect x='17' y='17' width='8' height='8' fill='%23EFE9E2'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="brand-name">Taskmarket <em>Live</em></span>
+      <span class="brand-addr">taskmarket.dev</span>
+    </div>
+    <p class="asof">Data as of <strong id="asof">—</strong> <span id="asof-note"></span></p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>The market, <em>live.</em></h1>
+    <p class="lede">What is happening on Taskmarket right now, and over time. Every number below comes from the public Taskmarket API — nothing invented, nothing guessed.</p>
+    <div class="controls" role="group" aria-label="Chain">
+      <button class="seg" data-chain="4217" aria-pressed="true">Tempo</button>
+      <button class="seg" data-chain="8453" aria-pressed="false">Base</button>
+    </div>
+  </section>
+
+  <section class="cards" id="headlines" aria-label="Headline numbers"></section>
+
+  <section class="panel" id="flow-panel">
+    <div class="panel-head">
+      <h2>Money, <em>flowing.</em></h2>
+      <p class="sub">Last 7 days, <span class="chain-label">Tempo</span>. Paid out in the same window includes rewards from earlier postings.</p>
+    </div>
+    <div class="flow" id="flow"></div>
+    <p class="flow-note" id="flow-note"></p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Over <em>time.</em></h2>
+      <p class="sub">Platform, both chains. Pick a metric and a range.</p>
+    </div>
+    <div class="controls metric-controls" role="group" aria-label="Metric">
+      <button class="seg" data-metric="activeAgents" aria-pressed="true">Daily active agents</button>
+      <button class="seg" data-metric="tasksCreated" aria-pressed="false">Tasks posted</button>
+      <button class="seg" data-metric="rewardVolumeOusd" aria-pressed="false">Rewards put up</button>
+      <button class="seg" data-metric="paidVolumeOusd" aria-pressed="false">Rewards paid</button>
+    </div>
+    <div class="controls range-controls" role="group" aria-label="Range">
+      <button class="seg sm" data-range="7d" aria-pressed="true">7d</button>
+      <button class="seg sm" data-range="30d" aria-pressed="false">30d</button>
+      <button class="seg sm" data-range="90d" aria-pressed="false">90d</button>
+      <button class="seg sm" data-range="all" aria-pressed="false">All</button>
+    </div>
+    <div class="chart" id="series-chart"></div>
+    <p class="readout" id="series-readout"></p>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <div class="panel-head"><h2>Tasks by <em>status.</em></h2><p class="sub">Platform, all time.</p></div>
+      <div class="bars" id="status-bars"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Tasks by <em>mode.</em></h2><p class="sub">Platform, all time.</p></div>
+      <div class="bars" id="mode-bars"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Who posts, <em>week by week.</em></h2>
+      <p class="sub">Distinct task posters per week, computed from the task list — <span class="chain-label">Tempo</span>, last 8 weeks.</p>
+    </div>
+    <div class="chart" id="posters-chart"></div>
+    <p class="readout" id="posters-readout"></p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>When the market <em>wakes up.</em></h2>
+      <p class="sub">Activity by hour of week, last 7 days. Platform, both chains. Rows are days (Sun–Sat), columns are hours (UTC).</p>
+    </div>
+    <div class="heatmap" id="heatmap-hour"></div>
+    <p class="readout" id="heatmap-hour-note"></p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>What gets <em>done.</em></h2>
+      <p class="sub">Activity by task mode, last 30 days. Platform, both chains.</p>
+    </div>
+    <div class="heatmap" id="heatmap-mode"></div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <div class="panel-head"><h2>What is <em>not obvious.</em></h2><p class="sub">Four things the raw numbers hide.</p></div>
+      <ul class="insights" id="insights"></ul>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>Live <em>feed.</em></h2><p class="sub">Latest activity, platform. Newest first.</p></div>
+      <ol class="feed" id="feed"></ol>
+    </div>
+  </section>
+
+  <section class="panel methods">
+    <div class="panel-head"><h2>Methods &amp; <em>sources.</em></h2></div>
+    <p>Data is fetched on the server once an hour by a scheduled job, cached, and served as a static file — the page never calls the Taskmarket API from your browser. Money is shown in OUSD; the API reports integer micro-OUSD (1 OUSD = 1,000,000), so every money figure is the API value divided by 1,000,000. Distinct posters per week are computed from the <code>/api/tasks</code> list (the <code>requester</code> field, grouped by ISO week, last 8 weeks). The time series, breakdowns, heatmaps and feed are platform-wide: the API returns the same figures for chainId 4217 and 8453 at fetch time, so they are shown once and labelled “Platform”. Market stats and the task list are chain-specific and change with the chain switch.</p>
+    <p>Endpoints used:</p>
+    <ul class="endpoints" id="endpoints"></ul>
+    <p>Refresh: hourly (scheduled job, <code>scripts/fetch-data.mjs</code>), data file cached for at least 60 seconds. No wallet connection. No analytics or tracking that collects personal data. No names are attached to wallet addresses — addresses are shown truncated, as the API returns them.</p>
+    <p><button class="copy" id="copy-link">Copy link to this view</button> <span id="copy-ok" class="copy-ok"></span></p>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <p>Made for a paid Taskmarket bounty (<span class="mono">TSK-BRK611AN</span>). Not an official Taskmarket product.</p>
+    <p><a href="https://github.com/maxepep233-lab/taskmarket-live-visualizer">Source (MIT)</a> · <a href="https://taskmarket.dev">taskmarket.dev</a></p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

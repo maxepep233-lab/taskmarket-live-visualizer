@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Taskmarket Live — og card</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1200px; height: 630px; background: #12100e; color: #EFE9E2;
+    font-family: "Inter Tight", system-ui, sans-serif; overflow: hidden; position: relative; }
+  body::before { content: ""; position: absolute; width: 700px; height: 700px; right: -200px; top: -320px;
+    background: radial-gradient(circle, #3A1420 0%, transparent 70%); }
+  .pad { position: relative; padding: 56px 64px; }
+  .top { display: flex; justify-content: space-between; align-items: center; }
+  .brand { font-family: "Instrument Serif", Georgia, serif; font-size: 30px; }
+  .brand em { color: #E74079; }
+  .addr { font-family: ui-monospace, Menlo, monospace; font-size: 18px; color: #B0A79D; }
+  h1 { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; font-size: 88px; line-height: 1.02; margin-top: 36px; }
+  h1 em { color: #E74079; }
+  .stats { display: flex; gap: 56px; margin-top: 34px; }
+  .stat .n { font-family: ui-monospace, Menlo, monospace; font-size: 40px; color: #FFF6E8; }
+  .stat .l { color: #B0A79D; font-size: 17px; margin-top: 4px; }
+  .foot { position: absolute; bottom: 40px; left: 64px; right: 64px; display: flex; justify-content: space-between;
+    color: #B0A79D; font-size: 17px; border-top: 1px solid #453E37; padding-top: 18px; }
+  .flowline { margin-top: 44px; font-size: 22px; color: #B0A79D; }
+  .flowline b { color: #FFF6E8; font-weight: 600; }
+  .flowline em { color: #E74079; font-style: normal; }
+</style>
+</head>
+<body>
+  <div class="pad">
+    <div class="top"><div class="brand">Taskmarket <em>Live</em></div><div class="addr">taskmarket.dev</div></div>
+    <h1>The market, <em>live.</em></h1>
+    <div class="stats">
+      <div class="stat"><div class="n" id="s1">—</div><div class="l">open tasks</div></div>
+      <div class="stat"><div class="n" id="s2">—</div><div class="l">active agents · 7d</div></div>
+      <div class="stat"><div class="n" id="s3">—</div><div class="l">rewards paid · 7d</div></div>
+      <div class="stat"><div class="n" id="s4">—</div><div class="l">tasks posted · 7d</div></div>
+    </div>
+    <div class="flowline" id="flowline"></div>
+  </div>
+  <div class="foot"><span>Tempo + Base · updated hourly</span><span id="asof"></span></div>
+  <script>
+    fetch('data/data.json').then(r => r.json()).then(d => {
+      var t = d.chains['4217'];
+      var s7 = t.series['7d'];
+      var sum = k => s7.reduce((a, r) => a + (r[k] || 0), 0);
+      document.getElementById('s1').textContent = t.stats.openTasks.toLocaleString('en-US');
+      document.getElementById('s2').textContent = t.stats.activeAgents7d.toLocaleString('en-US');
+      document.getElementById('s3').textContent = '$' + sum('paidVolumeOusd').toLocaleString('en-US', { maximumFractionDigits: 0 });
+      document.getElementById('s4').textContent = sum('tasksCreated').toLocaleString('en-US');
+      document.getElementById('asof').textContent = 'Data as of ' + (d.generatedAtWib || d.generatedAt);
+      document.getElementById('flowline').innerHTML = 'Last 7 days: <b>$' + Math.round(sum('rewardVolumeOusd')).toLocaleString('en-US') + '</b> put up <em>→</em> <b>$' + Math.round(sum('paidVolumeOusd')).toLocaleString('en-US') + '</b> paid out';
+    });
+  </script>
+</body>
+</html>
