@@ -21,8 +21,14 @@ Data comes from the public Taskmarket API (`https://api.taskmarket.dev`, no
 key). The page never calls the API from the browser: a scheduled job fetches
 on the server and commits `data/data.json`.
 
-- Refresh: hourly via `.github/workflows/fetch-data.yml`
-  (`node scripts/fetch-data.mjs`), data file cached for at least 60 seconds.
+- Refresh: hourly. A scheduled job on the author's server runs
+  `node scripts/fetch-data.mjs` and pushes `data/data.json` when it changes;
+  GitHub Pages serves the updated file. Data file cached for at least
+  60 seconds.
+- Prefer GitHub Actions? The workflow file `fetch-data-workflow.yml`
+  (kept with the bounty submission) can be added as
+  `.github/workflows/fetch-data.yml` — it does the same hourly fetch and
+  commit, and then no external scheduler is needed.
 - `scripts/fetch-data.mjs` — the fetcher. Run it locally any time:
   `node scripts/fetch-data.mjs`.
 - Money is shown in OUSD. The API reports integer micro-OUSD
